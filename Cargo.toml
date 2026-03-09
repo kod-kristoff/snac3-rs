@@ -9,3 +9,4 @@ name = "snac3"
 test = false
 
 [dependencies]
+tokio = { version = "1.50.0", features = ["rt-multi-thread", "net", "macros"] }
