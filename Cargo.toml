@@ -1,0 +1,11 @@
+[package]
+name = "snac3"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+doctest = false
+name = "snac3"
+test = false
+
+[dependencies]
