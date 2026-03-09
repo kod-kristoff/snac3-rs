@@ -12,3 +12,4 @@ test = false
 anyhow = "1.0.102"
 axum = "0.8.8"
 tokio = { version = "1.50.0", features = ["rt-multi-thread", "net", "macros"] }
+tower-http = { version = "0.6.8", features = ["trace"] }
