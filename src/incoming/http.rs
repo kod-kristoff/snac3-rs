@@ -1,5 +1,14 @@
+use std::sync::Arc;
+
 use anyhow::Context;
+use axum::{extract::FromRef, routing::get};
+use axum_template::engine::Engine;
+use minijinja::{Environment, path_loader};
 use tokio::net;
+
+use crate::incoming::http::handlers::greeting::greeting;
+
+mod handlers;
 
 pub struct HttpServerConfig<'a> {
     pub port: &'a str,
@@ -8,6 +17,13 @@ pub struct HttpServerConfig<'a> {
 pub struct HttpServer {
     listener: net::TcpListener,
     router: axum::Router,
+}
+
+type AppEngine = Engine<Environment<'static>>;
+
+#[derive(Clone, FromRef)]
+struct AppState {
+    engine: AppEngine,
 }
 
 impl HttpServer {
@@ -19,7 +35,15 @@ impl HttpServer {
             },
         );
 
-        let router = axum::Router::new().layer(trace_layer);
+        let mut jinja = Environment::new();
+        jinja.set_loader(path_loader("templates"));
+        let state = AppState {
+            engine: AppEngine::from(jinja),
+        };
+        let router = axum::Router::new()
+            .route("/", get(greeting))
+            .layer(trace_layer)
+            .with_state(state);
 
         let listener = net::TcpListener::bind(format!("0.0.0.0:{}", config.port))
             .await
